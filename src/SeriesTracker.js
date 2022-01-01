@@ -1,4 +1,3 @@
-import { series } from "./data.js";
 import { fancyLogSeriesReport } from "./utils.js";
 
 export function SeriesTracker(series) {

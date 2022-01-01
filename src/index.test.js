@@ -1,4 +1,4 @@
-import { SeriesTracker as SeriesTrackerTest } from "./index.js";
+import { SeriesTracker as SeriesTrackerTest } from "./SeriesTracker.js";
 import { series } from "./data.js";
 
 describe("SeriesTracker", () => {
