@@ -10,65 +10,80 @@ export function SeriesTracker(series) {
 
   this.add = function (serie) {
     this.series.push(serie);
-    //(If a serie has been watched) {
-    // Update the count of watched series: "numberOfWatched"
-    // Check for "lastSerie" property, set if we don't.
-    // Check for "lastSerie"'s finishedDate, if the serie's "finishedDate" prop is greater,
-    // set "lastSerie" prop to "serie" object.
-    //}
-    if (serie.isWatched) {
-    } else {
-      // If a serie hasn't been watched:
-      // Check if serie has "isCurrent" prop
-      // Check if we have a "currentSerie" property. Set if we don't.
-      // Check if we have a "nextSerie" property as well - if we didn't
-      // set the .currentSerie property, set the .nextSerie property.
-    }
 
-    //it should also update the number of series marked as watched / unwatched:
-    //"numberOfWatched" and "numberOfUnWatched"
+    if ("isWatched" in serie) {
+      this.numberOfWatched += 1;
+      // Checking "lastSerie" and setting it if doesn't exist.
+      if (this.lastSerie === undefined) {
+        this.lastSerie = serie;
+      } else {
+        // Converting from DD.MM.YYYY to MM.DD.YYYY format and comparing finishedDate of serie and "lastSerie" with Date() object for a more accurate result 
+        let lastSerieArray = this.lastSerie.finishedDate.split(".");
+        const a = lastSerieArray[0];
+        lastSerieArray[0] = lastSerieArray[1];
+        lastSerieArray[1] = a;
+        let serieArray = serie.finishedDate.split(".");
+        const b = serieArray[0];
+        serieArray[0] = serieArray[1];
+        serieArray[1] = b;
+        const f = new Date(lastSerieArray.toString());
+        const g = new Date(serieArray.toString());
+        if (g > f) {
+          this.lastSerie = serie;
+        }
+      }
+    } else {
+      this.numberOfUnWatched += 1;
+      // Checking "isCurrent" property in serie and setting it to "currentSerie" if not.
+      if ("isCurrent" in serie && this.currentSerie === undefined) {
+        this.currentSerie = serie;
+      } else if (this.nextSerie === undefined) {
+        this.nextSerie = serie;
+      }
+    }
   };
 
   //check to see if we have series to process
   if (series.length > 0) {
-    //Loop through all of the series in the "series" argument
-    //Use the .add function to handle adding series, so we keep counts updated.
+    series.forEach(serie => {
+      this.add(serie);
+    })
   }
 
   this.finishSerie = function () {
-    // find and update currently watching serie in "this.series" array
-    // update "lastSerie" with the finished one
-    // set "currentSerie" with the next one
-    // set new nextSerie value with the next one which has not been watched.
-    // update "numberOfWatched" and "numberOfUnWatched" props
+    this.numberOfWatched += 1;
+    this.numberOfUnWatched -= 1;
+
+    // Updating "lastSerie" with the finished one and "currentSerie" with the next unwatched one
+    this.lastSerie = this.currentSerie;
+    this.currentSerie = this.nextSerie;
+
+    // Getting today's date with Date object
+    const date = new Date();
+    const today = ("0" + date.getDate()).slice(-2) + '.' + ("0" + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
+
+    // Updating "lastSerie" properties
+    const lastSerieIndex = this.series.findIndex((serie) => {
+      return serie.id === this.lastSerie.id;
+    });
+    delete this.series[lastSerieIndex].isCurrent;
+    this.series[lastSerieIndex].isWatched = true;
+    this.series[lastSerieIndex].finishedDate = today;
+
+    // Updating "currentSerie" properties
+    const currentSerieIndex = this.series.findIndex((serie) => {
+      return serie.id === this.currentSerie.id;
+    });
+    this.series[currentSerieIndex].isCurrent = true;
+
+    // Updating "nextSerie" properties
+    const nextSerieIndex = this.series.findIndex((serie) => {
+      return !("isWatched" in serie) && !("isCurrent" in serie);
+    });
+    this.nextSerie = this.series[nextSerieIndex];
+
   };
   this.printSeriesReport = function () {
     fancyLogSeriesReport(this);
   };
 }
-
-// Case 1
-// -------------------------------------------------
-
-/* const mySeriesTracker = new SeriesTracker(series);
-mySeriesTracker.printSeriesReport(); */
-
-// Case 2
-// -------------------------------------------------
-
-/* const mySeriesTracker = new SeriesTracker(series);
-mySeriesTracker.finishSerie();
-mySeriesTracker.printSeriesReport(); */
-
-// Case 3
-// -------------------------------------------------
-
-/* const mySeriesTracker = new SeriesTracker(series);
-const newSerie = {
-  id: "9",
-  name: "Lost",
-  genre: "Adventure",
-  directorId: "4"
-};
-mySeriesTracker.add(newSerie);
-mySeriesTracker.printSeriesReport(); */
