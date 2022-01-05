@@ -17,22 +17,46 @@ export function SeriesTracker(series) {
     // set "lastSerie" prop to "serie" object.
     //}
     if (serie.isWatched) {
+        this.numberOfWatched += 1;
+        if (this.lastSerie === undefined) {
+            this.lastSerie = serie;
+        } else {
+            if (serie.finisDate != undefined) {
+                if (this.lastSerie.finishDate != undefined) {
+                    if (serie.finishDate > this.lastSerie.finishDate) {
+                        this.lastSerie = serie;
+                    }
+                }
+            }
+          }
     } else {
       // If a serie hasn't been watched:
       // Check if serie has "isCurrent" prop
       // Check if we have a "currentSerie" property. Set if we don't.
       // Check if we have a "nextSerie" property as well - if we didn't
       // set the .currentSerie property, set the .nextSerie property.
+      if (serie.isCurrent != undefined) {
+        if (this.currentSerie === undefined){
+            this.currentSerie = serie;
+        }
+        if (this.nextSerie === undefined) {
+            this.currentSerie = serie;
+            this.nextSerie = serie;
+        }
+      }
     }
-
     //it should also update the number of series marked as watched / unwatched:
     //"numberOfWatched" and "numberOfUnWatched"
+    this.numberOfUnWatched = series.length - this.numberOfWatched;
   };
 
   //check to see if we have series to process
   if (series.length > 0) {
     //Loop through all of the series in the "series" argument
     //Use the .add function to handle adding series, so we keep counts updated.
+    for (var i = 0; i < series.length; i++) {
+        add(series[i]);
+    }
   }
 
   this.finishSerie = function () {
@@ -41,6 +65,8 @@ export function SeriesTracker(series) {
     // set "currentSerie" with the next one
     // set new nextSerie value with the next one which has not been watched.
     // update "numberOfWatched" and "numberOfUnWatched" props
+    var index = this.series.indexOf(this.currentSerie);
+    this.series[index].isWatched = true;
   };
   this.printSeriesReport = function () {
     fancyLogSeriesReport(this);
