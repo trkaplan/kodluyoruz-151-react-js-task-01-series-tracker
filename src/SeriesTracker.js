@@ -19,16 +19,12 @@ export function SeriesTracker(series) {
       } else {
         // Converting from DD.MM.YYYY to MM.DD.YYYY format and comparing finishedDate of serie and "lastSerie" with Date() object for a more accurate result 
         let lastSerieArray = this.lastSerie.finishedDate.split(".");
-        const a = lastSerieArray[0];
-        lastSerieArray[0] = lastSerieArray[1];
-        lastSerieArray[1] = a;
+        [lastSerieArray[0], lastSerieArray[1]] = [lastSerieArray[1], lastSerieArray[0]];
         let serieArray = serie.finishedDate.split(".");
-        const b = serieArray[0];
-        serieArray[0] = serieArray[1];
-        serieArray[1] = b;
-        const f = new Date(lastSerieArray.toString());
-        const g = new Date(serieArray.toString());
-        if (g > f) {
+        [serieArray[0], serieArray[1]] = [serieArray[1], serieArray[0]];
+        const lastSerieTempDate = new Date(lastSerieArray);
+        const serieTempDate = new Date(serieArray);
+        if (serieTempDate > lastSerieTempDate) {
           this.lastSerie = serie;
         }
       }
