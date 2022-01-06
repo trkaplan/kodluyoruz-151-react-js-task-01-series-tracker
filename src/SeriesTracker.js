@@ -19,7 +19,7 @@ export function SeriesTracker(series) {
     if (serie.isWatched) {
         this.numberOfWatched += 1;
         if (this.lastSerie === undefined) {
-            this.lastSerie = serie;
+        this.lastSerie = serie;
         } else {
             if (serie.finisDate != undefined) {
                 if (this.lastSerie.finishDate != undefined) {
@@ -41,9 +41,9 @@ export function SeriesTracker(series) {
         }
         if (this.nextSerie === undefined) {
             this.currentSerie = serie;
-            var index_current = = this.series.indexOf(this.currentSerie);
-            if (index < this.series.length){
-                this.nextSerie = this.series[index_current+1];
+            var index_current = series.indexOf(this.currentSerie);
+            if (index_current < series.length-1){
+                this.nextSerie = series[index_current+1];
             }
         }
       }
@@ -69,18 +69,14 @@ export function SeriesTracker(series) {
     // set new nextSerie value with the next one which has not been watched.
     // update "numberOfWatched" and "numberOfUnWatched" props
     var index_currentSerie = this.series.indexOf(this.currentSerie);
-    this.series[index_currentSerie].isWatched = true;
+    series[index_currentSerie].isWatched = true;
     this.lastSerie = this.currentSerie;
-    if (index < this.series.length) {
-        this.currentSerie = this.series[index_currentSerie+1];
-    } else {
-        this.currentSerie = undefined;
+    if (index_currentSerie < series.length) {
+        this.currentSerie = series[index_currentSerie+1];
     }
-    var unWatched = this.series.filter( function(series){return (series.isWatched==false);} );
+    var unWatched = series.filter( function(series){return (series.isWatched==false);});
     if (unWatched[0] != undefined) {
         this.nextSerie = unWatched[0];
-    } else {
-        this.nextSerie = undefined;
     }
     this.numberOfWatched += 1;
     this.numberOfUnWatched = this.series.length - this.numberOfWatched;
