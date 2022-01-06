@@ -1,50 +1,95 @@
-import { fancyLogSeriesReport } from "./utils.js";
+import {
+	fancyLogSeriesReport
+} from "./utils.js";
 
 export function SeriesTracker(series) {
-  this.numberOfWatched = 0;
-  this.numberOfUnWatched = 0;
-  this.series = [];
-  this.lastSerie = undefined;
-  this.currentSerie = undefined;
-  this.nextSerie = undefined;
+	this.numberOfWatched = 0;
+	this.numberOfUnWatched = 0;
+	this.series = [];
+	this.lastSerie = undefined;
+	this.currentSerie = undefined;
+	this.nextSerie = undefined;
 
-  this.add = function (serie) {
-    this.series.push(serie);
-    //(If a serie has been watched) {
-    // Update the count of watched series: "numberOfWatched"
-    // Check for "lastSerie" property, set if we don't.
-    // Check for "lastSerie"'s finishedDate, if the serie's "finishedDate" prop is greater,
-    // set "lastSerie" prop to "serie" object.
-    //}
-    if (serie.isWatched) {
-    } else {
-      // If a serie hasn't been watched:
-      // Check if serie has "isCurrent" prop
-      // Check if we have a "currentSerie" property. Set if we don't.
-      // Check if we have a "nextSerie" property as well - if we didn't
-      // set the .currentSerie property, set the .nextSerie property.
-    }
+	this.add = function(serie) {
+		this.series.push(serie);
+		if (serie.isWatched) {
+			this.numberOfWatched += 1
+			if (this.lastSerie == undefined) {
+				this.lastSerie = serie
+			}
+			if (this.lastSerie.finishedDate < serie.finishedDate) {
+				this.lastSerie = serie
+			}
+		} else {
+			if ('isCurrent' in serie) {
+				if (this.currentSerie == undefined) {
+					this.currentSerie = serie
+				};
+			} else {
+				if (this.nextSerie == undefined) {
+					this.nextSerie = serie
+				}
+			}
+		}
+		this.numberOfUnWatched = this.series.length - this.numberOfWatched
+	};
+	if (series.length > 0) {
+		for (let serie of series) {
+			this.add(serie)
+		}
 
-    //it should also update the number of series marked as watched / unwatched:
-    //"numberOfWatched" and "numberOfUnWatched"
-  };
+	}
 
-  //check to see if we have series to process
-  if (series.length > 0) {
-    //Loop through all of the series in the "series" argument
-    //Use the .add function to handle adding series, so we keep counts updated.
-  }
+	this.finishSerie = function() {
+		for (let serie of this.series) {
+			if (serie == this.currentSerie) {
+				delete serie.isCurrent
+				serie.isWatched = true
+				let today = new Date();
+				var dd = today.getDate();
+				var mm = today.getMonth() + 1;
+				var yyyy = today.getFullYear();
+				if (dd < 10) {
+					dd = '0' + dd;
+				};
 
-  this.finishSerie = function () {
-    // find and update currently watching serie in "this.series" array
-    // update "lastSerie" with the finished one
-    // set "currentSerie" with the next one
-    // set new nextSerie value with the next one which has not been watched.
-    // update "numberOfWatched" and "numberOfUnWatched" props
-  };
-  this.printSeriesReport = function () {
-    fancyLogSeriesReport(this);
-  };
+				if (mm < 10) {
+					mm = '0' + mm;
+				};
+				let date = dd + '.' + mm + '.' + yyyy
+				serie.finishedDate = date
+				this.lastSerie = serie
+				this.numberOfWatched++
+				this.numberOfUnWatched -= 1
+				this.currentSerie = Object.assign(this.nextSerie)
+				break
+			};
+
+
+		};
+		for (let serie of this.series) {
+			if (!('isWatched' in serie)) {
+				if (serie != this.currentSerie) {
+					this.nextSerie = serie
+					break
+				}
+			} else {
+				console.log('whys')
+				if (serie.id == series.length) {
+					this.nextSerie = 'No new series to watch'
+				}
+
+			};
+
+		};;
+
+
+
+
+	};
+	this.printSeriesReport = function() {
+		fancyLogSeriesReport(this);
+	};
 }
 
 // Case 1
