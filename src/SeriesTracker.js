@@ -41,7 +41,10 @@ export function SeriesTracker(series) {
         }
         if (this.nextSerie === undefined) {
             this.currentSerie = serie;
-            this.nextSerie = serie;
+            var index_current = = this.series.indexOf(this.currentSerie);
+            if (index < this.series.length){
+                this.nextSerie = this.series[index_current+1];
+            }
         }
       }
     }
@@ -55,7 +58,7 @@ export function SeriesTracker(series) {
     //Loop through all of the series in the "series" argument
     //Use the .add function to handle adding series, so we keep counts updated.
     for (var i = 0; i < series.length; i++) {
-        add(series[i]);
+        this.add(series[i]);
     }
   }
 
@@ -65,8 +68,23 @@ export function SeriesTracker(series) {
     // set "currentSerie" with the next one
     // set new nextSerie value with the next one which has not been watched.
     // update "numberOfWatched" and "numberOfUnWatched" props
-    var index = this.series.indexOf(this.currentSerie);
-    this.series[index].isWatched = true;
+    var index_currentSerie = this.series.indexOf(this.currentSerie);
+    this.series[index_currentSerie].isWatched = true;
+    this.lastSerie = this.currentSerie;
+    if (index < this.series.length) {
+        this.currentSerie = this.series[index_currentSerie+1];
+    } else {
+        this.currentSerie = undefined;
+    }
+    var unWatched = this.series.filter( function(series){return (series.isWatched==false);} );
+    if (unWatched[0] != undefined) {
+        this.nextSerie = unWatched[0];
+    } else {
+        this.nextSerie = undefined;
+    }
+    this.numberOfWatched += 1;
+    this.numberOfUnWatched = this.series.length - this.numberOfWatched;
+
   };
   this.printSeriesReport = function () {
     fancyLogSeriesReport(this);
