@@ -17,12 +17,27 @@ export function SeriesTracker(series) {
     // set "lastSerie" prop to "serie" object.
     //}
     if (serie.isWatched) {
+      this.numberOfWatched++;
+
+      if (!this.lastSerie) {
+        this.lastSerie = serie;
+      } else if (Date.parse(this.lastSerie.finishedDate) < Date.parse(serie.finishedDate)) {
+        this.lastSerie = serie;
+      }
     } else {
       // If a serie hasn't been watched:
       // Check if serie has "isCurrent" prop
       // Check if we have a "currentSerie" property. Set if we don't.
       // Check if we have a "nextSerie" property as well - if we didn't
       // set the .currentSerie property, set the .nextSerie property.
+      
+      if (serie.hasOwnProperty("isCurrent") && serie.isCurrent) {
+        this.currentSerie = serie;
+      } else if (!this.nextSerie) {
+        this.nextSerie = serie;
+      }
+
+      this.numberOfUnWatched++;
     }
 
     //it should also update the number of series marked as watched / unwatched:
@@ -33,6 +48,9 @@ export function SeriesTracker(series) {
   if (series.length > 0) {
     //Loop through all of the series in the "series" argument
     //Use the .add function to handle adding series, so we keep counts updated.
+    for (let i = 0; i < series.length; i++) {
+      this.add(series[i]);
+    }
   }
 
   this.finishSerie = function () {
@@ -41,6 +59,7 @@ export function SeriesTracker(series) {
     // set "currentSerie" with the next one
     // set new nextSerie value with the next one which has not been watched.
     // update "numberOfWatched" and "numberOfUnWatched" props
+    
   };
   this.printSeriesReport = function () {
     fancyLogSeriesReport(this);
