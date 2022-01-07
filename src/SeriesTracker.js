@@ -16,13 +16,33 @@ export function SeriesTracker(series) {
     // Check for "lastSerie"'s finishedDate, if the serie's "finishedDate" prop is greater,
     // set "lastSerie" prop to "serie" object.
     //}
+
     if (serie.isWatched) {
+      this.numberOfWatched++;
+      if(!this.lastSerie)
+        this.lastSerie = serie;
+      else{
+        let lastSerieFinishedDate = new Date(this.lastSerie.finishedDate);
+        let serieFinishedDate = new Date(serie.finishedDate);
+
+        if(serieFinishedDate > lastSerieFinishedDate)
+          this.lastSerie = serie;
+      }
     } else {
+      if (serie.isCurrent)
+          this.currentSerie = serie;
+
+        else{
+          if(!this.nextSerie)
+            this.nextSerie = this.series.find(serie => !serie.isWatched && !serie.isCurrent);
+        }
+          
       // If a serie hasn't been watched:
       // Check if serie has "isCurrent" prop
       // Check if we have a "currentSerie" property. Set if we don't.
       // Check if we have a "nextSerie" property as well - if we didn't
       // set the .currentSerie property, set the .nextSerie property.
+      this.numberOfUnWatched++;
     }
 
     //it should also update the number of series marked as watched / unwatched:
@@ -31,11 +51,24 @@ export function SeriesTracker(series) {
 
   //check to see if we have series to process
   if (series.length > 0) {
-    //Loop through all of the series in the "series" argument
-    //Use the .add function to handle adding series, so we keep counts updated.
+    series.forEach(serie => {
+      this.add(serie);
+    });
   }
 
   this.finishSerie = function () {
+    this.lastSerie = this.series.find(serie => serie.isCurrent);
+    this.lastSerie.isCurrent = false;
+    this.lastSerie.isWatched = true;
+
+    this.lastSerie.finishedDate = new Date();
+
+    this.currentSerie = this.series.find(serie => !serie.isWatched && !serie.isCurrent);
+    this.currentSerie.isCurrent = true;
+
+    this.nextSerie =  this.series.find(serie => !serie.isWatched && !serie.isCurrent);
+    this.numberOfWatched++;
+    this.numberOfUnWatched--;
     // find and update currently watching serie in "this.series" array
     // update "lastSerie" with the finished one
     // set "currentSerie" with the next one
@@ -51,7 +84,7 @@ export function SeriesTracker(series) {
 // -------------------------------------------------
 
 /* const mySeriesTracker = new SeriesTracker(series);
-mySeriesTracker.printSeriesReport(); */
+mySeriesTracker.printSeriesReport(); 
 
 // Case 2
 // -------------------------------------------------
