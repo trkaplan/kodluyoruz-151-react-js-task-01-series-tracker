@@ -10,50 +10,31 @@ export function SeriesTracker(series) {
 
   this.add = function (serie) {
     this.series.push(serie);
-    //(If a serie has been watched) {
-    // Update the count of watched series: "numberOfWatched"
-    // Check for "lastSerie" property, set if we don't.
-    // Check for "lastSerie"'s finishedDate, if the serie's "finishedDate" prop is greater,
-    // set "lastSerie" prop to "serie" object.
-    //}
     if (serie.isWatched) {
-        this.numberOfWatched += 1;
-        if (this.lastSerie === undefined) {
+        this.numberOfWatched += 1; // Update the count of watched series: "numberOfWatched"
+        if (this.lastSerie === undefined) { // Check for "lastSerie" property, set if we don't.
         this.lastSerie = serie;
-        } else {
-            if (serie.finisDate != undefined) {
-                if (this.lastSerie.finishDate != undefined) {
-                    if (serie.finishDate > this.lastSerie.finishDate) {
-                        this.lastSerie = serie;
-                    }
-                }
-            }
-          }
+        }
+        const newFinishedDate = Date.parse(serie.finishedDate)
+        const finishedDateOfLastSerie = Date.parse(this.lastSerie.finishedDate); // Check for "lastSerie"'s finishedDate, if the serie's "finishedDate" prop is greater,
+        if (newFinishedDate > finishedDateOfLastSerie) this.lastSerie = serie; // set "lastSerie" prop to "serie" object.
+
     } else {
-      // If a serie hasn't been watched:
-      // Check if serie has "isCurrent" prop
-      // Check if we have a "currentSerie" property. Set if we don't.
-      // Check if we have a "nextSerie" property as well - if we didn't
-      // set the .currentSerie property, set the .nextSerie property.
-      if (serie.isCurrent != undefined) {
-        if (this.currentSerie === undefined){
-            this.currentSerie = serie;
+      if (serie.isCurrent != undefined) { // If a serie hasn't been watched:
+        if (this.currentSerie === undefined){ // Check if serie has "isCurrent" prop
+            this.currentSerie = serie; // Check if we have a "currentSerie" property. Set if we don't.
         }
         if (this.nextSerie === undefined) {
-            this.currentSerie = serie;
-            var index_current = series.indexOf(this.currentSerie);
-            if (index_current < series.length-1){
-                this.nextSerie = series[index_current+1];
+            this.currentSerie = serie; // Check if we have a "nextSerie" property as well - if we didn't
+            this.nextSerie = series[series.indexOf(this.currentSerie)+1]; // set the .currentSerie property, set the .nextSerie property.
             }
         }
+      this.numberOfUnWatched = series.length - this.numberOfWatched;
       }
-    }
     //it should also update the number of series marked as watched / unwatched:
     //"numberOfWatched" and "numberOfUnWatched"
-    this.numberOfUnWatched = series.length - this.numberOfWatched;
-  };
 
-  //check to see if we have series to process
+  };
   if (series.length > 0) {
     //Loop through all of the series in the "series" argument
     //Use the .add function to handle adding series, so we keep counts updated.
@@ -63,29 +44,32 @@ export function SeriesTracker(series) {
   }
 
   this.finishSerie = function () {
-    // find and update currently watching serie in "this.series" array
-    // update "lastSerie" with the finished one
-    // set "currentSerie" with the next one
-    // set new nextSerie value with the next one which has not been watched.
-    // update "numberOfWatched" and "numberOfUnWatched" props
-    var index_currentSerie = this.series.indexOf(this.currentSerie);
-    series[index_currentSerie].isWatched = true;
-    this.lastSerie = this.currentSerie;
-    if (index_currentSerie < series.length) {
-        this.currentSerie = series[index_currentSerie+1];
-    }
-    var unWatched = series.filter( function(series){return (series.isWatched==false);});
-    if (unWatched[0] != undefined) {
-        this.nextSerie = unWatched[0];
-    }
-    this.numberOfWatched += 1;
-    this.numberOfUnWatched = this.series.length - this.numberOfWatched;
+    var index_currentSerie = this.series.indexOf(this.currentSerie);  // find and update currently watching serie in "this.series" array
+    const today = new Date().toLocaleDateString("tr-TR");
+    this.series[index_currentSerie].isWatched = true;
+    delete this.series[index_currentSerie].isCurrent;
+    this.series[index_currentSerie].finishDate = today;
+    this.lastSerie = this.series[index_currentSerie]; // update "lastSerie" with the finished one
+    this.currentSerie = this.nextSerie; // set "currentSerie" with the next one
+    var index_currentSerie2 = this.series.indexOf(this.currentSerie);
+    this.series[index_currentSerie2].isCurrent = true;
 
-  };
+    var filteredObj = series.filter(function (el) {
+        console.log(el);
+        return el.isWatched === undefined &&
+               el.isCurrent === undefined;
+               //el.finishedDate > this.lastSerie.finishedDate;
+        });
+    this.nextSerie = filteredObj[0]; // set new nextSerie value with the next one which has not been watched.
+    this.numberOfWatched += 1; // update "numberOfWatched" and "numberOfUnWatched" props
+    this.numberOfUnWatched = series.length - this.numberOfWatched;
+    }
+
   this.printSeriesReport = function () {
     fancyLogSeriesReport(this);
   };
-}
+ }
+
 
 // Case 1
 // -------------------------------------------------
