@@ -58,13 +58,46 @@ export function SeriesTracker(series) {
     // update "lastSerie" with the finished one
     // set "currentSerie" with the next one
     // set new nextSerie value with the next one which has not been watched.
-    // update "numberOfWatched" and "numberOfUnWatched" props
-    
+    // update "numberOfWatched" and "numberOfUnWatched" props   
+    if (this.currentSerie) {
+      let today = new Date(Date.now()).toLocaleString('tr-TR').split(' ')[0];
+
+      this.lastSerie = this.currentSerie;
+      this.lastSerie.isWatched = true;
+      this.lastSerie.finishedDate = today;
+
+      this.numberOfWatched++;
+      this.numberOfUnWatched--;
+
+      if (this.nextSerie) {
+        this.currentSerie = this.nextSerie;
+        
+        if (!series[this.nextSerie.id].isWatched) {
+          this.nextSerie = series[this.nextSerie.id].name;
+        } else {
+          for (let i = this.nextSerie.id; i < series.length; i++) {
+            if (!series[i].isWatched) {
+              this.nextSerie = series[i];
+              break;
+            }
+          }
+        }
+        /*
+        for (let i = 0; i < series.length; i++) {
+          if(!series[this.nextSerie.id].isWatched) {
+            this.nextSerie = series[this.nextSerie.id].name;
+          } else {
+            this.nextSerie = null;
+          }
+        }*/
+      }
+    }
   };
   this.printSeriesReport = function () {
     fancyLogSeriesReport(this);
   };
 }
+
 
 // Case 1
 // -------------------------------------------------
