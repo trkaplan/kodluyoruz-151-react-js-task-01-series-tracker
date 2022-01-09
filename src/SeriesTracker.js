@@ -27,9 +27,7 @@ export function SeriesTracker(series) {
     } else {
       // If a serie hasn't been watched:
       // Check if serie has "isCurrent" prop
-        //if (serie.isCurrent) {
         // Check if we have a "currentSerie" property. Set if we don't.
-          //this.currentSerie ? {} : this.currentSerie = serie;
           if (serie.isCurrent && !this.currentSerie) {
             this.currentSerie = serie;           
           } 
@@ -39,10 +37,9 @@ export function SeriesTracker(series) {
           else if (!this.nextSerie) {
             this.nextSerie = serie;
           };   
-          //};
           //it should also update the number of series marked as watched / unwatched:
           //"numberOfWatched" and "numberOfUnWatched"
-          this.numberOfUnWatched += 1;
+          this.numberOfUnWatched++;
     };
     
   };
@@ -59,9 +56,10 @@ export function SeriesTracker(series) {
 
   this.finishSerie = function () {
     // find and update currently watching serie in "this.series" array  
-    let s = this.series.find(serie => serie.name == this.currentSerie.name)
-    delete s.isCurrent;
     const today = new Date().toLocaleDateString("tr-TR");
+    
+    let s = this.series.find(serie => serie.name == this.currentSerie.name)
+    s.isCurrent = false;
     s.isWatched = true;
     s.finishedDate = today;
     
@@ -71,21 +69,18 @@ export function SeriesTracker(series) {
     // set "currentSerie" with the next one
     this.currentSerie = this.nextSerie;
 
-    const curIndex = this.series.findIndex( (serie) => {
-      return serie.id === this.currentSerie.id
-    })
+    const curIndex = this.series.findIndex( (serie) => (serie.id === this.currentSerie.id) );
     this.series[curIndex].isCurrent = true;
     
     // set new nextSerie value with the next one which has not been watched.
-    let nextIndex = this.series.findIndex((serie) => {
-      return !(serie.isWatched) && !(serie.isCurrent);
-    });
+    let nextIndex = this.series.findIndex((serie) => (!serie.isWatched && !serie.isCurrent));
     this.nextSerie = this.series[nextIndex]
 
     // update "numberOfWatched" and "numberOfUnWatched" props
-    this.numberOfWatched += 1;
-    this.numberOfUnWatched -= 1;
+    this.numberOfWatched++;
+    this.numberOfUnWatched--;
   };
+
   this.printSeriesReport = function () {
     fancyLogSeriesReport(this);
   };
